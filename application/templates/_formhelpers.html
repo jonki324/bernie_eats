@@ -1,24 +1,27 @@
-{% macro render_item() %}
-    <div class="card mb-3">
+{% macro render_item(item, form) %}
+    <div class="card mb-2">
         <div class="row no-gutters">
             <div class="col-md-4">
-                <img src="{{ url_for('static', filename='buta.jpg') }}" class="card-img">
+                <img src="{{ url_for('static', filename=item.img_file_name) }}" class="card-img">
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                    <h5 class="card-title">豚たま 300円</h5>
-                    <p class="card-text">
-                        説明
-                    </p>
-                    <p class="card-text">
-                    <form class="form-inline">
-                        <div class="form-group mb-2">
-                            <label for="staticEmail2">注文数</label>
-                            <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="1">
+                    <h5 class="card-title">{{ item.name }}&nbsp;{{ item.price }}&nbsp;円</h5>
+                    <p class="card-text">{{ item.comment }}</p>
+                    <p class="card-text mt-5">
+                        <div class="form-group">
+                            <label for="{{ form.name }}">
+                            <input type="text" name="{{ form.name }}" class="form-control-plaintext"
+                                   id="{{ form.name }}" value="{{ form.val }}">
                         </div>
-                        <button type="button" class="btn btn-primary mb-2">-</button>
-                        <button type="button" class="btn btn-primary mb-2">+</button>
-                    </form>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-secondary" onclick="minusCnt({{ item.id }})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="plusCnt({{ item.id }})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </p>
                 </div>
             </div>

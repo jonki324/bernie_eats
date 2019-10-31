@@ -16,22 +16,18 @@
                     </tr>
                     </thead>
                     <tbody>
+                    {% for form in forms %}
                     <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ form.name }}</td>
+                        <td>{{ form.cnt }}</td>
+                        <td>{{ form.price }}</td>
                     </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
+                    {% endfor %}
                     <tr>
                         <th scope="row">合計</th>
                         <td colspan="2"></td>
-                        <td>1000</td>
+                        <td>{{ total }}</td>
                     </tr>
                     </tbody>
                 </table>

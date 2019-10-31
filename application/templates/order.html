@@ -3,56 +3,65 @@
 {% block header %}{% endblock %}
 
 {% block content %}
-    {% from "_formhelpers.html" import render_item %}
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                {{ render_item() }}
-            </div>
+    <form action="" method="post">
+        {% from "_formhelpers.html" import render_item %}
+        <div class="container mt-5">
+            {% for item, form in items %}
+                <div class="row">
+                    <div class="col">
+                        {{ render_item(item, form) }}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <fieldset class="form-group">
-                    <div class="row">
-                        <legend class="col-form-label col-sm-2 pt-0">Radios</legend>
-                        <div class="col-sm-10">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1"
-                                       value="option1" checked>
-                                <label class="form-check-label" for="gridRadios1">
-                                    First radio
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2"
-                                       value="option2">
-                                <label class="form-check-label" for="gridRadios2">
-                                    Second radio
-                                </label>
-                            </div>
-                            <div class="form-check disabled">
-                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3"
-                                       value="option3" disabled>
-                                <label class="form-check-label" for="gridRadios3">
-                                    Third disabled radio
-                                </label>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col">
+                    <fieldset class="form-group">
+                        <div class="row">
+                            <legend class="col-form-label col-sm-2 pt-0">配達場所</legend>
+                            <div class="col-sm-10">
+                                {% for loc in locs %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="loc_id"
+                                               id="loc_id_{{ loc.id }}"
+                                               value="{{ loc.id }}"{% if loc.id == loc_id %} checked{% endif %}>
+                                        <label class="form-check-label" for="loc_id_{{ loc.id }}">
+                                            {{ loc.name }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
-                    </div>
-                </fieldset>
-            </div>
-            <div class="col">
-                <button type="button" class="btn btn-primary">注文</button>
+                    </fieldset>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary btn-block">注文</button>
+                </div>
             </div>
         </div>
-    </div>
-
-
-
-
-<a href="{{ url_for('view.order_check') }}">order_check</a>
+    </form>
 {% endblock %}
 
-{% block script %}{% endblock %}
+{% block script %}
+<script>
+function plusCnt(id) {
+    let cnt = $(`#odr_cnt_${id}`);
+    let c = cnt.val();
+    if (c >= 99) {
+        return false
+    }
+    c++;
+    cnt.val(c);
+}
+function minusCnt(id) {
+    let cnt = $(`#odr_cnt_${id}`);
+    let c = cnt.val();
+    if (c <= 0) {
+        return false
+    }
+    c--;
+    cnt.val(c);
+}
+</script>
+{% endblock %}

@@ -107,8 +107,8 @@ class OrderStatusHistory(Base):
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
     status_id = db.Column(db.Integer, db.ForeignKey('master_status.id'))
 
-    order = db.relationship('Order', back_populates='status', uselist=False)
-    status = db.relationship('MasterStatus', back_populates='order_status', uselist=False)
+    order = db.relationship('Order', back_populates='status_historys', uselist=False)
+    status = db.relationship('MasterStatus', back_populates='order_status_history', uselist=False)
 
     def __init__(self, status):
         self.status = status
@@ -152,3 +152,62 @@ class MasterLoc(Base):
 
 def init_db(app):
     db.init_app(app)
+
+
+def create_master_all():
+    user_vals = [
+        {'login_id': 'user', 'password': 'a'}
+    ]
+    users = []
+    for user in user_vals:
+        users.append(User(login_id=user['login_id'], password=user['password']))
+    db.session.add_all(users)
+
+    # 商品
+    item_vals = [
+        {
+            'name': '古き良き豚玉',
+            'price': 300,
+            'comment': '古き良き豚玉の説明',
+            'img_file_name': 'buta.jpg',
+            'cooking_time_m': 10,
+         },
+        {
+            'name': 'deep-モダン',
+            'price': 400,
+            'comment': 'deep-モダンの説明',
+            'img_file_name': 'modern.jpg',
+            'cooking_time_m': 10,
+        },
+    ]
+    items = []
+    for item in item_vals:
+        items.append(Item(name=item['name'], price=item['price'], comment=item['comment'],
+                          img_file_name=item['img_file_name'], cooking_time_m=item['cooking_time_m']))
+    db.session.add_all(items)
+
+    # ステータス
+    status_vals = [
+        {'name': '調理待ち'},
+        {'name': '調理中'},
+        {'name': '配達中'},
+        {'name': '注文キャンセル'},
+        {'name': '完了'},
+    ]
+    status = []
+    for sts in status_vals:
+        status.append(MasterStatus(name=sts['name']))
+    db.session.add_all(status)
+
+    # 配達場所
+    loc_vals = [
+        {'name': '181教室', 'delivery_time_m': 0},
+        {'name': '職員室(本館3階)', 'delivery_time_m': 1},
+        {'name': '7B22教室', 'delivery_time_m': 5},
+    ]
+    locs = []
+    for loc in loc_vals:
+        locs.append(MasterLoc(name=loc['name'], delivery_time_m=loc['delivery_time_m']))
+    db.session.add_all(locs)
+
+    db.session.commit()
