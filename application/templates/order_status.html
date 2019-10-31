@@ -22,23 +22,75 @@
                     </div>
                     <div class="form-group mx-sm-3 mb-2">
                         <label for="inputPassword2" class="sr-only">Password</label>
-                        <input type="text" class="form-control" id="inputPassword2" placeholder="1">
+                        <input type="number" name="order_id" id="order_id" class="form-control" id="inputPassword2" placeholder="1">
                     </div>
-                    <button type="button" class="btn btn-primary mb-2">検索</button>
+                    <button type="button" class="btn btn-primary mb-2" id="serch_btn">検索</button>
                 </form>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="res_area">
             <div class="col">
-
+                <div class="card">
+                    <div class="card-header">
+                        注文No.<span id="res_order_id"></span>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">注文状況: <span id="res_order_status"></span></li>
+                        <li class="list-group-item">待ち時間: </li>
+                        <li class="list-group-item" id="res_cancel_btn">
+                            <button type="button" class="btn btn-primary">注文をキャンセルする</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="row">
             <div class="col text-center">
-                <button type="button" class="btn btn-primary">注文</button>
+                <button type="button" class="btn btn-primary">注文へ戻る</button>
             </div>
         </div>
     </div>
 {% endblock %}
 
-{% block script %}{% endblock %}
+{% block script %}
+<script>
+$(function() {
+    let res_area = $('#res_area');
+    let res_cancel_btn = $('#res_cancel_btn');
+
+    res_area.hide();
+    res_cancel_btn.hide();
+
+    $('#serch_btn').on('click', function() {
+        res_area.hide();
+        res_cancel_btn.hide();
+
+        let order_id = $('#order_id').val();
+        $.post({
+            url: '{{ url_for('view.order_status') }}',
+            data: {
+                order_id: order_id
+            }
+        }).done( (res) => {
+            console.log(res);
+            if (res.is_err) {
+                alert('通信エラー');
+                return false;
+            }
+
+            $('#res_order_id').html(res.order_id);
+            $('#res_order_status').html(res.order_stats);
+            if (res.is_cancelable) {
+                res_cancel_btn.show();
+            }
+
+            res_area.show();
+        }).fail( (res) => {
+            console.log(res);
+            alert('通信エラー')
+        })
+    });
+
+});
+</script>
+{% endblock %}

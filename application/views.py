@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
 from application.models import db, Item, MasterLoc, MasterStatus, Order, OrderStatus, OrderStatusHistory
 
 view = Blueprint('view', __name__)
@@ -122,20 +122,25 @@ def order_complete():
 
 @view.route('/order_status', methods=['GET', 'POST'])
 def order_status():
+    if request.method == 'POST':
+        res = {
+            'is_err': True
+        }
+        order_id = request.form['order_id']
+        if order_id:
+            order = db.session.query(Order).filter(Order.id == int(order_id)).first()
+            if order:
+                res = {
+                    'is_err': False,
+                    'order_id': order_id,
+                    'order_stats': order.status.status.name,
+                    'is_cancelable': True if order.status.status_id == WAITING else False
+                }
+        return jsonify(res)
+
     return render_template('order_status.html')
 
 
 @view.route('/kitchen', methods=['GET', 'POST'])
 def kitchen():
     return render_template('kitchen.html')
-
-
-def get_forms_from_session(items):
-    forms = {}
-    for i in items:
-        forms[i.id] = {
-            'name': 'odr_cnt_{}'.format(i.id),
-            'val': session.get('odr_cnt_{}'.format(i.id), default=0)
-        }
-    forms['loc_id'] = session.get('loc_id', default=1)
-    return forms
