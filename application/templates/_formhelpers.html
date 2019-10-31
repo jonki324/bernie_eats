@@ -10,7 +10,7 @@
                     <p class="card-text">{{ item.comment }}</p>
                     <p class="card-text mt-5">
                         <div class="form-group">
-                            <label for="{{ forms[item.id].name }}">
+                            <label for="{{ forms[item.id].name }}"></label>
                             <input type="text" name="{{ forms[item.id].name }}" class="form-control-plaintext"
                                    id="{{ forms[item.id].name }}" value="{{ forms[item.id].val }}">
                         </div>
@@ -29,40 +29,55 @@
     </div>
 {% endmacro %}
 
-{% macro render_status() %}
-    <div class="card">
-        <div class="card-header">
-            待ち
+{% macro render_status(status_id, bef_status_id, aft_status_id, master_status, kitchen_list, item_names) %}
+    <div class="card mt-4 border-{{ COLORS[status_id] }}">
+        <div class="card-header bg-{{ COLORS[status_id] }} text-white">
+            {{ master_status[status_id - 1]['name'] }}
         </div>
-        <div class="card-body">
-            <div class="card">
+        <div id="" class="card-body">
+            {% for order in kitchen_list[status_id] %}
+            <div class="card mb-1">
                 <div class="card-body">
                     <div class="container">
                         <div class="row">
-                            <div class="col">
-                                注文No
-                                待ち
+                            <div class="col-md-3">
+                                注文No.{{ order.order_id }}<br>
+                                待ち時間: {{ order.wait_time_m }}
                             </div>
-                            <div class="col">
+                            <div class="col-md-5">
                                 <ul>
-                                    <li>ぶた 1コ</li>
-                                    <li>ぶた 1コ</li>
+                                    <li>{{ item_names[ITEM_ID_BUTA] }}: {{ order.count_buta }}</li>
+                                    <li>{{ item_names[ITEM_ID_MODERN] }}: {{ order.count_modern }}</li>
                                 </ul>
                             </div>
-                            <div class="col">場所</div>
+                            <div class="col-md-4">
+                                配達場所: <br>
+                                {{ order.loc_name }}
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button type="button" class="btn btn-secondary">Left</button>
-                                    <button type="button" class="btn btn-secondary">Middle</button>
-                                    <button type="button" class="btn btn-secondary">Right</button>
+                                    <button type="button" class="btn btn-primary" onclick="updStatus({{ aft_status_id }}, {{ order.order_id }})">
+                                        完了
+                                    </button>
+                                    {% if status_id != WAITING and status_id != CANCELLED %}
+                                    <button type="button" class="btn btn-secondary" onclick="updStatus({{ bef_status_id }}, {{ order.order_id }})">
+                                        戻す
+                                    </button>
+                                    {% endif %}
+                                    {% if status_id == WAITING %}
+                                    <button type="button" class="btn btn-danger" onclick="updStatus({{ CANCELLED }}, {{ order.order_id }})">
+                                        注文キャンセル
+                                    </button>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 {% endmacro %}

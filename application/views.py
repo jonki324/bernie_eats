@@ -1,15 +1,8 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
 from application.models import db, Item, MasterLoc, MasterStatus, Order, OrderStatus, OrderStatusHistory
+from application.const import Const
 
 view = Blueprint('view', __name__)
-
-ITEM_ID_BUTA = 1
-ITEM_ID_MODERN = 2
-WAITING = 1
-COOKING = 2
-CARRYING = 3
-CANCELLED = 4
-COMPLETED = 5
 
 
 @view.route('/login', methods=['GET', 'POST'])
@@ -26,13 +19,19 @@ def order():
     items = db.session.query(Item).all()
     locs = db.session.query(MasterLoc).all()
 
+    order_form = session.get('order_form', default=None)
+    loc_id = 1
+    order_form_items = None
+    if order_form:
+        loc_id = order_form['loc_id']
+        order_form_items = order_form['items']
+
     forms = {}
     for i in items:
         forms[i.id] = {
             'name': 'odr_cnt_{}'.format(i.id),
-            'val': session.get('odr_cnt_{}'.format(i.id), default=0)
+            'val': order_form_items[str(i.id)]['odr_cnt'] if order_form_items else 0
         }
-    loc_id = session.get('loc_id', default=1)
 
     if request.method == 'POST':
         order_form = {'loc_id': request.form['loc_id']}
@@ -88,11 +87,11 @@ def order_check():
         forms.append(form)
 
     if request.method == 'POST':
-        master_status = db.session.query(MasterStatus).filter(MasterStatus.id == WAITING).first()
+        master_status = db.session.query(MasterStatus).filter(MasterStatus.id == Const.WAITING).first()
         order_status = OrderStatus(status=master_status)
         order_status_history = OrderStatusHistory(status=master_status)
-        order = Order(count_buta=order_form['items'][str(ITEM_ID_BUTA)]['odr_cnt'],
-                      count_modern=order_form['items'][str(ITEM_ID_MODERN)]['odr_cnt'],
+        order = Order(count_buta=order_form['items'][str(Const.ITEM_ID_BUTA)]['odr_cnt'],
+                      count_modern=order_form['items'][str(Const.ITEM_ID_MODERN)]['odr_cnt'],
                       loc=loc,
                       status=order_status,
                       status_history=order_status_history)
@@ -134,7 +133,7 @@ def order_status():
                     'is_err': False,
                     'order_id': order_id,
                     'order_stats': order.status.status.name,
-                    'is_cancelable': True if order.status.status_id == WAITING else False
+                    'is_cancelable': True if order.status.status_id == Const.WAITING else False
                 }
         return jsonify(res)
 
@@ -143,4 +142,79 @@ def order_status():
 
 @view.route('/kitchen', methods=['GET', 'POST'])
 def kitchen():
-    return render_template('kitchen.html')
+    items = db.session.query(Item).all()
+    item_names = {}
+    for i in items:
+        item_names[i.id] = i.name
+    master_status = db.session.query(MasterStatus).all()
+    kitchen_list = get_kitchen_list(master_status)
+    return render_template('kitchen.html', item_names=item_names,
+                           master_status=master_status,
+                           kitchen_list=kitchen_list)
+
+
+@view.route('/kitchen/upd', methods=['GET', 'POST'])
+def kitchen_upd():
+    if request.method == 'POST':
+        order_id = request.form['order_id']
+        status_id = request.form['status_id']
+
+        master_status = db.session.query(MasterStatus).filter(MasterStatus.id == status_id).first()
+        order_status_history = OrderStatusHistory(status=master_status)
+
+        order = db.session.query(Order).filter(Order.id == order_id).first()
+
+        order.status.status_id = status_id
+        order.status_historys.append(order_status_history)
+
+        db.session.add(order)
+        db.session.commit()
+
+        return jsonify({'is_err': False})
+
+    return redirect(url_for('view.kitchen'))
+
+
+def get_kitchen_list(master_status):
+    res = {}
+    for m_s in master_status:
+        order_list = []
+        for o_s in m_s.order_status:
+            order_id = o_s.order.id
+            count_buta = o_s.order.count_buta
+            count_modern = o_s.order.count_modern
+            loc_name = o_s.order.loc.name
+            order_info = {
+                'order_id': order_id,
+                'wait_time_m': 10,
+                'count_buta': count_buta,
+                'count_modern': count_modern,
+                'loc_name': loc_name
+            }
+            order_list.append(order_info)
+        res[m_s.id] = order_list
+
+    # res = {
+    #     {
+    #         '1(status_id)': [
+    #             {
+    #                 'order_id': 1,
+    #                 'wait_time_m': 10,
+    #                 'count_buta': 1,
+    #                 'count_modern': 2,
+    #                 'loc_name': '7B2'
+    #             },
+    #         ],
+    #         '2(status_id)': [
+    #             {
+    #                 'order_id': 1,
+    #                 'wait_time_m': 10,
+    #                 'count_buta': 1,
+    #                 'count_modern': 2,
+    #                 'loc_name': '7B2'
+    #             },
+    #         ],
+    #     },
+    # }
+
+    return res

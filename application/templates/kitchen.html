@@ -6,10 +6,10 @@
             <div class="col">
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">待ち・調理中</a>
+                        <a class="nav-link active" href="#w_c" data-toggle="tab">待ち・調理中</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">配達・完了</a>
+                        <a class="nav-link" href="#d_c" data-toggle="tab">配達・完了</a>
                     </li>
                 </ul>
             </div>
@@ -19,16 +19,56 @@
 
 {% block content %}
     {% from "_formhelpers.html" import render_status %}
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                {{ render_status() }}
+    <div class="tab-content">
+        <div id="w_c" class="tab-pane active">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        {{ render_status(WAITING, WAITING, COOKING, master_status, kitchen_list, item_names) }}
+                    </div>
+                    <div class="col">
+                        {{ render_status(COOKING, WAITING, CARRYING, master_status, kitchen_list, item_names) }}
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                {{ render_status() }}
+        </div>
+        <div id="d_c" class="tab-pane">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        {{ render_status(CARRYING, COOKING, COMPLETED, master_status, kitchen_list, item_names) }}
+                    </div>
+                    <div class="col">
+                        {{ render_status(COMPLETED, CARRYING, COMPLETED, master_status, kitchen_list, item_names) }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 {% endblock %}
 
-{% block script %}{% endblock %}
+{% block script %}
+<script>
+{#setTimeout(() => {location.reload()}, 3000);#}
+
+function updStatus(status_id, order_id) {
+    $.post({
+        url: '{{ url_for('view.kitchen_upd') }}',
+        data: {
+            status_id: status_id,
+            order_id: order_id
+        }
+    }).done( (res) => {
+        console.log(res);
+        if (res.is_err) {
+            alert('通信エラー');
+            return false;
+        }
+        location.reload();
+    }).fail( (res) => {
+        console.log(res);
+        alert('通信エラー');
+    })
+}
+</script>
+{% endblock %}
