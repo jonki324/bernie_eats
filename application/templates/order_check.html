@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">No</th>
+                        <th scope="col">商品名</th>
+                        <th scope="col">注文数</th>
+                        <th scope="col">小計</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>@fat</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">合計</th>
+                        <td colspan="2"></td>
+                        <td>1000</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p>配達場所: 7b</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary">注文</button>
+                <button type="button" class="btn btn-primary">注文</button>
+            </div>
+        </div>
+    </div>
+<a href="{{ url_for('view.order_complete') }}">order_complete</a>
+{% endblock %}
+
+{% block script %}{% endblock %}
