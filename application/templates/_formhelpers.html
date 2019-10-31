@@ -1,4 +1,4 @@
-{% macro render_item(item, form) %}
+{% macro render_item(item, forms) %}
     <div class="card mb-2">
         <div class="row no-gutters">
             <div class="col-md-4">
@@ -10,9 +10,9 @@
                     <p class="card-text">{{ item.comment }}</p>
                     <p class="card-text mt-5">
                         <div class="form-group">
-                            <label for="{{ form.name }}">
-                            <input type="text" name="{{ form.name }}" class="form-control-plaintext"
-                                   id="{{ form.name }}" value="{{ form.val }}">
+                            <label for="{{ forms[item.id].name }}">
+                            <input type="text" name="{{ forms[item.id].name }}" class="form-control-plaintext"
+                                   id="{{ forms[item.id].name }}" value="{{ forms[item.id].val }}">
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-secondary" onclick="minusCnt({{ item.id }})">

@@ -6,10 +6,10 @@
     <form action="" method="post">
         {% from "_formhelpers.html" import render_item %}
         <div class="container mt-5">
-            {% for item, form in items %}
+            {% for item in items %}
                 <div class="row">
                     <div class="col">
-                        {{ render_item(item, form) }}
+                        {{ render_item(item, forms) }}
                     </div>
                 </div>
             {% endfor %}
@@ -25,7 +25,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="loc_id"
                                                id="loc_id_{{ loc.id }}"
-                                               value="{{ loc.id }}"{% if loc.id == loc_id %} checked{% endif %}>
+                                               value="{{ loc.id }}"{% if loc.id | string == loc_id | string %} checked{% endif %}>
                                         <label class="form-check-label" for="loc_id_{{ loc.id }}">
                                             {{ loc.name }}
                                         </label>

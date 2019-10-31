@@ -3,12 +3,14 @@ from application.models import db, Item, MasterLoc, MasterStatus, Order, OrderSt
 
 view = Blueprint('view', __name__)
 
+ITEM_ID_BUTA = 1
+ITEM_ID_MODERN = 2
+WAITING = 1
+COOKING = 2
+CARRYING = 3
+CANCELLED = 4
+COMPLETED = 5
 
-waiting = 1
-cooking = 2
-carrying = 3
-cancelled = 4
-completed = 5
 
 @view.route('/login', methods=['GET', 'POST'])
 def login():
@@ -18,58 +20,89 @@ def login():
 @view.route('/', methods=['GET', 'POST'])
 @view.route('/order', methods=['GET', 'POST'])
 def order():
+    session.pop('order_id', default=None)
+    session.pop('loc_name', default=None)
+
     items = db.session.query(Item).all()
     locs = db.session.query(MasterLoc).all()
 
-    forms = []
+    forms = {}
     for i in items:
-        form = {
+        forms[i.id] = {
             'name': 'odr_cnt_{}'.format(i.id),
             'val': session.get('odr_cnt_{}'.format(i.id), default=0)
         }
-        forms.append(form)
     loc_id = session.get('loc_id', default=1)
 
     if request.method == 'POST':
-        session['loc_id'] = request.form['loc_id']
+        order_form = {'loc_id': request.form['loc_id']}
+        tmp_items = {}
         for i in items:
-            session['odr_cnt_{}'.format(i.id)] = request.form['odr_cnt_{}'.format(i.id)]
+            tmp = {i.id: {'odr_cnt': 0}}
+            tmp[i.id]['odr_cnt'] = request.form['odr_cnt_{}'.format(i.id)]
+            tmp_items.update(tmp)
+        order_form['items'] = tmp_items
+        # order_form = {
+        #     'loc_id': 1,
+        #     'items': {
+        #         1(item_id): {
+        #             'odr_cnt': 5
+        #         },
+        #         2(item_id): {
+        #             'odr_cnt': 5
+        #         }
+        #     }
+        # }
+        session['order_form'] = order_form
+
+        print(order_form)
+
         return redirect(url_for('view.order_check'))
 
-    return render_template('order.html', items=zip(items, forms), locs=locs, loc_id=loc_id)
+    return render_template('order.html', items=items, forms=forms, locs=locs, loc_id=loc_id)
 
 
 @view.route('/order_check', methods=['GET', 'POST'])
 def order_check():
-    items = db.session.query(Item).all()
-    odr = get_ord_cnt_from_session(items)
+    order_form = session.get('order_form', default=None)
+    if order_form is None:
+        return redirect(url_for('view.order'))
 
-    loc = db.session.query(MasterLoc).filter(MasterLoc.id == odr['loc_id']).first()
+    items = db.session.query(Item).all()
+    loc = db.session.query(MasterLoc).filter(MasterLoc.id == order_form['loc_id']).first()
 
     forms = []
     total = 0
     for i in items:
+        name = i.name
+        price = i.price
+        odr_cnt = int(order_form['items'][str(i.id)]['odr_cnt'])
+        subtotal = odr_cnt * i.price
+        total += subtotal
         form = {
-            'name': i.name,
-            'cnt': odr['odr_cnt_{}'.format(i.id)],
-            'price': int(odr['odr_cnt_{}'.format(i.id)]) * i.price,
+            'name': name,
+            'price': price,
+            'odr_cnt': odr_cnt,
+            'subtotal': subtotal,
         }
-        total += form['price']
         forms.append(form)
 
     if request.method == 'POST':
-        loc = db.session.query(MasterLoc).filter(MasterLoc.id == odr['loc_id']).first()
-        master_status = db.session.query(MasterStatus).filter(MasterStatus.id == waiting).first()
+        master_status = db.session.query(MasterStatus).filter(MasterStatus.id == WAITING).first()
         order_status = OrderStatus(status=master_status)
         order_status_history = OrderStatusHistory(status=master_status)
-        order = Order(count_buta=odr['odr_cnt_1'],
-                      count_modern=odr['odr_cnt_2'],
+        order = Order(count_buta=order_form['items'][str(ITEM_ID_BUTA)]['odr_cnt'],
+                      count_modern=order_form['items'][str(ITEM_ID_MODERN)]['odr_cnt'],
                       loc=loc,
                       status=order_status,
                       status_history=order_status_history)
 
         db.session.add(order)
         db.session.commit()
+
+        session['order_id'] = order.id
+        session['loc_name'] = loc.name
+        session.pop('order_form')
 
         return redirect(url_for('view.order_complete'))
 
@@ -78,7 +111,13 @@ def order_check():
 
 @view.route('/order_complete', methods=['GET', 'POST'])
 def order_complete():
-    return render_template('order_complete.html')
+    order_id = session.get('order_id', default=None)
+    loc_name = session.get('loc_name', default=None)
+
+    if order_id is None:
+        return redirect(url_for('view.order'))
+
+    return render_template('order_complete.html', order_id=order_id, loc_name=loc_name)
 
 
 @view.route('/order_status', methods=['GET', 'POST'])
@@ -91,9 +130,12 @@ def kitchen():
     return render_template('kitchen.html')
 
 
-def get_ord_cnt_from_session(items):
+def get_forms_from_session(items):
     forms = {}
     for i in items:
-        forms['odr_cnt_{}'.format(i.id)] = session.get('odr_cnt_{}'.format(i.id), default=0)
+        forms[i.id] = {
+            'name': 'odr_cnt_{}'.format(i.id),
+            'val': session.get('odr_cnt_{}'.format(i.id), default=0)
+        }
     forms['loc_id'] = session.get('loc_id', default=1)
     return forms

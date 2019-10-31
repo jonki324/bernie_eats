@@ -1,29 +1,32 @@
 {% extends 'layout.html' %}
 
 {% block header %}
-    <div class="container">
+    <div class="container text-center">
         <div class="row">
-            <div class="col text-center">
-                <h1>注文</h1>
+            <div class="col">
+                <h1>注文完了</h1>
+                <h2>
+                    ご注文ありがとうございました！
+                </h2>
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block content %}
-    <div class="container">
+    <div class="container text-center">
         <div class="row">
-            <div class="col text-center">注文No</div>
+            <div class="col">注文No.{{ order_id }}</div>
         </div>
         <div class="row">
-            <div class="col text-center">配達</div>
+            <div class="col">配達場所 : {{ loc_name }}</div>
         </div>
         <div class="row">
-            <div class="col text-center">待ち時間</div>
+            <div class="col">待ち時間 : </div>
         </div>
         <div class="row">
-            <div class="col text-center">
-                <button type="button" class="btn btn-primary">注文</button>
+            <div class="col">
+                <a href="{{ url_for('view.order') }}" class="btn btn-primary">注文へ戻る</a>
             </div>
         </div>
     </div>

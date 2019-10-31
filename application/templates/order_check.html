@@ -19,9 +19,9 @@
                     {% for form in forms %}
                     <tr>
                         <th scope="row">{{ loop.index }}</th>
-                        <td>{{ form.name }}</td>
-                        <td>{{ form.cnt }}</td>
-                        <td>{{ form.price }}</td>
+                        <td>{{ form.name }} {{ form.price }}</td>
+                        <td>{{ form.odr_cnt }}</td>
+                        <td>{{ form.subtotal }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -35,17 +35,18 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <p>配達場所: 7b</p>
+                <p>配達場所: {{ loc.name }}</p>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <button type="button" class="btn btn-primary">注文</button>
-                <button type="button" class="btn btn-primary">注文</button>
+                <form action="" method="post">
+                    <button type="submit" class="btn btn-primary">注文確定</button>
+                    <a href="{{ url_for('view.order') }}" class="btn btn-secondary">戻る</a>
+                </form>
             </div>
         </div>
     </div>
-<a href="{{ url_for('view.order_complete') }}">order_complete</a>
 {% endblock %}
 
 {% block script %}{% endblock %}
