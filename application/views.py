@@ -1,13 +1,35 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
-from application.models import db, Item, MasterLoc, MasterStatus, Order, OrderStatus, OrderStatusHistory
+from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify, flash
+from flask_login import login_user, logout_user, login_required
+from application.models import db, Item, MasterLoc, MasterStatus, Order, OrderStatus, OrderStatusHistory, User
 from application.const import Const
+from application.forms import LoginForm
+
 
 view = Blueprint('view', __name__)
 
 
 @view.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    form = LoginForm()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        user, authenticated = User.auth(db.session.query, form.login_id.data, form.password.data)
+        if authenticated:
+            login_user(user)
+            # flash('ログインしました。', 'success')
+            return redirect(url_for('view.order'))
+
+        flash('ログインIDかパスワードが違います', 'danger')
+
+    return render_template('login.html', form=form)
+
+
+@view.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    flash('ログアウトしました。', 'success')
+    return redirect(url_for('view.login'))
 
 
 @view.route('/', methods=['GET', 'POST'])

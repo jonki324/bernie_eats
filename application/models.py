@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import synonym
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -13,7 +14,7 @@ class Base(db.Model):
                             onupdate=db.func.current_timestamp())
 
 
-class User(Base):
+class User(UserMixin, Base):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -37,6 +38,11 @@ class User(Base):
 
     def check_password(self, password):
         return check_password_hash(self.password, password.strip())
+
+    @classmethod
+    def auth(cls, query, login_id, password):
+        user = query(cls).filter(cls.login_id == login_id).first()
+        return user, user and user.check_password(password)
 
 
 class Item(Base):

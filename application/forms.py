@@ -1,10 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField
-from wtforms.validators import Length
+from wtforms import StringField, PasswordField
+from wtforms.validators import DataRequired, Length
 
 
-class OrderForm(FlaskForm):
-    order_count_buta = StringField('注文数',
-                                   validators=[Length(max=99, message='99までです')])
-    order_count_modern = StringField('注文数',
-                                     validators=[Length(max=99, message='99までです')])
+class LoginForm(FlaskForm):
+    login_id = StringField('ログインID',
+                           validators=[DataRequired('必須です'),
+                                       Length(max=20, message='20桁までです')])
+    password = PasswordField('パスワード',
+                             validators=[DataRequired('必須です'),
+                                         Length(max=20, message='20桁までです')])
