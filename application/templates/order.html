@@ -8,7 +8,7 @@
         <div class="container mt-5">
             {% for item in items %}
                 <div class="row">
-                    <div class="col">
+                    <div class="col-md-10 offset-md-1">
                         {{ render_item(item, forms) }}
                     </div>
                 </div>
@@ -16,11 +16,11 @@
         </div>
         <div class="container mt-5">
             <div class="row">
-                <div class="col">
+                <div class="offset-md-1 col-md-11">
                     <fieldset class="form-group">
                         <div class="row">
-                            <legend class="col-form-label col-sm-2 pt-0">配達場所</legend>
-                            <div class="col-sm-10">
+                            <legend class="col-form-label col-sm-3 pt-0"><span class="h5">配達場所</span></legend>
+                            <div class="col-sm-9 h6">
                                 {% for loc in locs %}
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="loc_id"
@@ -35,17 +35,41 @@
                         </div>
                     </fieldset>
                 </div>
-                <div class="col">
-                    <button type="submit" class="btn btn-primary btn-block">注文</button>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 offset-md-3">
+                    <button type="submit" id="submit_btn" class="btn btn-primary btn-block">注文</button>
                 </div>
             </div>
         </div>
         <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}">
     </form>
+    <div class="modal fade" id="imgModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <img src="" id="modalImg" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block script %}
 <script>
+$(function() {
+    toggleDis();
+});
+function toggleDis() {
+    let submit_btn = $('#submit_btn');
+    let cnt_1 = $(`#odr_cnt_1`).val();
+    let cnt_2 = $(`#odr_cnt_2`).val();
+    if (cnt_1 == 0 && cnt_2 == 0) {
+        submit_btn.prop("disabled", true);
+    } else {
+        submit_btn.prop("disabled", false);
+    }
+}
 function plusCnt(id) {
     let cnt = $(`#odr_cnt_${id}`);
     let c = cnt.val();
@@ -54,6 +78,7 @@ function plusCnt(id) {
     }
     c++;
     cnt.val(c);
+    toggleDis();
 }
 function minusCnt(id) {
     let cnt = $(`#odr_cnt_${id}`);
@@ -63,6 +88,12 @@ function minusCnt(id) {
     }
     c--;
     cnt.val(c);
+    toggleDis();
+}
+function showModal(item_id) {
+    let src_org = $(`#img_${item_id}`).attr('src');
+    $('#modalImg').attr('src', src_org);
+    $('#imgModal').modal('show');
 }
 </script>
 {% endblock %}

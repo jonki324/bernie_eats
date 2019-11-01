@@ -129,7 +129,7 @@ class MasterStatus(Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)
 
-    order_status = db.relationship('OrderStatus', back_populates='status')
+    order_status = db.relationship('OrderStatus', back_populates='status', order_by='asc(OrderStatus.order_id)')
     order_status_history = db.relationship('OrderStatusHistory', back_populates='status')
 
     def __init__(self, name):

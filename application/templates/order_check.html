@@ -1,13 +1,15 @@
 {% extends 'layout.html' %}
 
-{% block header %}{% endblock %}
+{% block header %}
+<h2 class="text-center mt-5">注文確認</h2>
+{% endblock %}
 
 {% block content %}
-    <div class="container">
+    <div class="container mt-5">
         <div class="row">
-            <div class="col-md-12">
-                <table class="table">
-                    <thead>
+            <div class="col-md-10 offset-md-1">
+                <table class="table table-striped">
+                    <thead class="thead-light">
                     <tr>
                         <th scope="col">No</th>
                         <th scope="col">商品名</th>
@@ -20,29 +22,29 @@
                     <tr>
                         <th scope="row">{{ loop.index }}</th>
                         <td>{{ form.name }} {{ form.price }}</td>
-                        <td>{{ form.odr_cnt }}</td>
-                        <td>{{ form.subtotal }}</td>
+                        <td>{{ form.odr_cnt }} コ</td>
+                        <td>{{ form.subtotal }} 円</td>
                     </tr>
                     {% endfor %}
-                    <tr>
+                    <tr class="table-info">
                         <th scope="row">合計</th>
                         <td colspan="2"></td>
-                        <td>{{ total }}</td>
+                        <td>{{ total }} 円</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <p>配達場所: {{ loc.name }}</p>
+        <div class="row mt-5">
+            <div class="col-md-10 offset-md-1">
+                <p class="h4">配達場所: {{ loc.name }}</p>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
+        <div class="row mt-5">
+            <div class="col-md-6 offset-md-3">
                 <form action="" method="post">
-                    <button type="submit" class="btn btn-primary">注文確定</button>
-                    <a href="{{ url_for('view.order') }}" class="btn btn-secondary">戻る</a>
+                    <button type="submit" class="btn btn-primary btn-block">注文確定</button>
+                    <a href="{{ url_for('view.order') }}" class="btn btn-secondary btn-block">注文に戻る</a>
                     <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}">
                 </form>
             </div>

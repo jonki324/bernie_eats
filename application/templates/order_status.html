@@ -2,9 +2,9 @@
 
 {% block header %}
     <div class="container">
-        <div class="row">
+        <div class="row mt-5">
             <div class="col text-center">
-                <h1>注文状況</h1>
+                <h1>注文状況確認</h1>
             </div>
         </div>
     </div>
@@ -12,24 +12,25 @@
 
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col">
-                <form class="form-inline">
-                    <div class="form-group mb-2">
-                        <label for="staticEmail2" class="sr-only">Email</label>
-                        <input type="text" readonly class="form-control-plaintext" id="staticEmail2"
-                               value="注文No">
+        <div class="row mt-5">
+            <div class="col-md-10 offset-1">
+                <form>
+                    <div class="form-row">
+                        <div class="offset-3 col-1">
+                            <input type="text" readonly class="form-control-plaintext" value="注文No: ">
+                        </div>
+                        <div class="col-2">
+                            <input type="number" min="1" name="order_id" id="order_id" class="form-control" placeholder="注文No">
+                        </div>
+                        <div class="col-3">
+                            <button type="button" class="btn btn-primary" id="search_btn">検索</button>
+                        </div>
                     </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <label for="inputPassword2" class="sr-only">Password</label>
-                        <input type="number" name="order_id" id="order_id" class="form-control" id="inputPassword2" placeholder="1">
-                    </div>
-                    <button type="button" class="btn btn-primary mb-2" id="serch_btn">検索</button>
                 </form>
             </div>
         </div>
-        <div class="row" id="res_area">
-            <div class="col">
+        <div class="row mt-5" id="res_area">
+            <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
                         注文No.<span id="res_order_id"></span>
@@ -38,15 +39,15 @@
                         <li class="list-group-item">注文状況: <span id="res_order_status"></span></li>
                         <li class="list-group-item">待ち時間: </li>
                         <li class="list-group-item" id="res_cancel_btn">
-                            <button type="button" class="btn btn-primary">注文をキャンセルする</button>
+                            <button type="button" class="btn btn-danger btn-block">注文をキャンセルする</button>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col text-center">
-                <button type="button" class="btn btn-primary">注文へ戻る</button>
+        <div class="row mt-5">
+            <div class="col-md-6 offset-md-3 text-center">
+                <a href="{{ url_for('view.order') }}" class="btn btn-primary btn-block">注文へ戻る</a>
             </div>
         </div>
     </div>
@@ -61,7 +62,7 @@ $(function() {
     res_area.hide();
     res_cancel_btn.hide();
 
-    $('#serch_btn').on('click', function() {
+    $('#search_btn').on('click', function() {
         res_area.hide();
         res_cancel_btn.hide();
 

@@ -1,15 +1,18 @@
 {% extends 'layout.html' %}
 
 {% block header %}
-    <div class="container">
+    <div class="container mt-4">
         <div class="row">
             <div class="col">
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#w_c" data-toggle="tab">待ち・調理中</a>
+                        <a class="nav-link{% if tab == TAB_WAITING_AND_COOKING %} active{% endif %}" href="#w_c" data-toggle="tab">待ち・調理中</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#d_c" data-toggle="tab">配達・完了</a>
+                        <a class="nav-link{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}" href="#d_c" data-toggle="tab">配達・完了</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if tab == TAB_CANCELLED %} active{% endif %}" href="#cancel" data-toggle="tab">注文キャンセル</a>
                     </li>
                 </ul>
             </div>
@@ -20,7 +23,7 @@
 {% block content %}
     {% from "_formhelpers.html" import render_status %}
     <div class="tab-content">
-        <div id="w_c" class="tab-pane active">
+        <div id="w_c" class="tab-pane{% if tab == TAB_WAITING_AND_COOKING %} active{% endif %}">
             <div class="container">
                 <div class="row">
                     <div class="col">
@@ -32,7 +35,7 @@
                 </div>
             </div>
         </div>
-        <div id="d_c" class="tab-pane">
+        <div id="d_c" class="tab-pane{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}">
             <div class="container">
                 <div class="row">
                     <div class="col">
@@ -40,6 +43,15 @@
                     </div>
                     <div class="col">
                         {{ render_status(COMPLETED, CARRYING, COMPLETED, master_status, kitchen_list, item_names) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="cancel" class="tab-pane{% if tab == TAB_CANCELLED %} active{% endif %}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ render_status(CANCELLED, COMPLETED, COMPLETED, master_status, kitchen_list, item_names) }}
                     </div>
                 </div>
             </div>
@@ -65,7 +77,7 @@ function updStatus(status_id, order_id) {
             alert('通信エラー');
             return false;
         }
-        location.reload();
+        location.href = '{{ url_for('view.kitchen') }}?tab=' + res.tab;
     }).fail( (res) => {
         console.log(res);
         alert('通信エラー');

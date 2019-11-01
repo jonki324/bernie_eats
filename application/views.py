@@ -24,7 +24,7 @@ def login():
     return render_template('login.html', form=form)
 
 
-@view.route('/logout', methods=['GET', 'POST'])
+@view.route('/logout')
 @login_required
 def logout():
     logout_user()
@@ -76,8 +76,6 @@ def order():
         #     }
         # }
         session['order_form'] = order_form
-
-        print(order_form)
 
         return redirect(url_for('view.order_check'))
 
@@ -169,13 +167,14 @@ def order_status():
 @view.route('/kitchen')
 @login_required
 def kitchen():
+    tab = request.args.get('tab', default=Const.TAB_WAITING_AND_COOKING)
     items = db.session.query(Item).all()
     item_names = {}
     for i in items:
         item_names[i.id] = i.name
     master_status = db.session.query(MasterStatus).all()
     kitchen_list = get_kitchen_list(master_status)
-    return render_template('kitchen.html', item_names=item_names,
+    return render_template('kitchen.html', tab=int(tab), item_names=item_names,
                            master_status=master_status,
                            kitchen_list=kitchen_list)
 
@@ -186,6 +185,14 @@ def kitchen_upd():
     if request.method == 'POST':
         order_id = request.form['order_id']
         status_id = request.form['status_id']
+        status_id = int(status_id)
+
+        if status_id == Const.WAITING or status_id == Const.COOKING or status_id == Const.CARRYING:
+            tab = Const.TAB_WAITING_AND_COOKING
+        elif status_id == Const.COMPLETED:
+            tab = Const.TAB_CARRYING_AND_COMPLETED
+        else:
+            tab = Const.TAB_CANCELLED
 
         master_status = db.session.query(MasterStatus).filter(MasterStatus.id == status_id).first()
         order_status_history = OrderStatusHistory(status=master_status)
@@ -198,7 +205,7 @@ def kitchen_upd():
         db.session.add(order)
         db.session.commit()
 
-        return jsonify({'is_err': False})
+        return jsonify({'is_err': False, 'tab': tab})
 
     return redirect(url_for('view.kitchen'))
 

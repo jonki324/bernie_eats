@@ -2,25 +2,31 @@
     <div class="card mb-2">
         <div class="row no-gutters">
             <div class="col-md-4">
-                <img src="{{ url_for('static', filename=item.img_file_name) }}" class="card-img">
+                <img src="{{ url_for('static', filename=item.img_file_name) }}" id="img_{{ item.id }}" onclick="showModal({{ item.id }})" class="card-img" style="width: 200px;">
             </div>
             <div class="col-md-8">
                 <div class="card-body">
                     <h5 class="card-title">{{ item.name }}&nbsp;{{ item.price }}&nbsp;円</h5>
                     <p class="card-text">{{ item.comment }}</p>
                     <p class="card-text mt-5">
-                        <div class="form-group">
-                            <label for="{{ forms[item.id].name }}"></label>
-                            <input type="text" name="{{ forms[item.id].name }}" class="form-control-plaintext"
+                        <div class="form-row">
+                            <div class="col-2">
+                                <label for="{{ forms[item.id].name }}" class=""><span class="h6">注文数: </span></label>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" name="{{ forms[item.id].name }}" class="form-control-plaintext"
                                    id="{{ forms[item.id].name }}" value="{{ forms[item.id].val }}">
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-secondary" onclick="minusCnt({{ item.id }})">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="plusCnt({{ item.id }})">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                            </div>
+                            <div class="col-8">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-secondary" onclick="minusCnt({{ item.id }})">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="plusCnt({{ item.id }})">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </p>
                 </div>
@@ -35,32 +41,34 @@
             {{ master_status[status_id - 1]['name'] }}
         </div>
         <div id="" class="card-body">
-            {% for order in kitchen_list[status_id] %}
+            {% set ED = kitchen_list[status_id] | length if status_id == CANCELLED else DISPLAY_COUNT %}
+            {% for order in kitchen_list[status_id][0:ED] %}
             <div class="card mb-1">
+                <div class="card-header">
+                    注文No.{{ order.order_id }} 注文時間: {{ order.wait_time_m }}
+                </div>
                 <div class="card-body">
                     <div class="container">
                         <div class="row">
-                            <div class="col-md-3">
-                                注文No.{{ order.order_id }}<br>
-                                待ち時間: {{ order.wait_time_m }}
-                            </div>
-                            <div class="col-md-5">
+                            <div class="col-md-7">
                                 <ul>
                                     <li>{{ item_names[ITEM_ID_BUTA] }}: {{ order.count_buta }}</li>
                                     <li>{{ item_names[ITEM_ID_MODERN] }}: {{ order.count_modern }}</li>
                                 </ul>
                             </div>
-                            <div class="col-md-4">
-                                配達場所: <br>
-                                {{ order.loc_name }}
+                            <div class="col-md-5">
+                                &lt;&lt; 配達場所 &gt;&gt; <br>{{ order.loc_name }}
                             </div>
                         </div>
+                        {% if status_id != CANCELLED %}
                         <div class="row">
-                            <div class="col">
-                                <div class="btn-group" role="group" aria-label="Basic example">
+                            <div class="col-md-10 offset-md-1">
+                                <div class="btn-group btn-block" role="group">
+                                    {% if status_id != COMPLETED %}
                                     <button type="button" class="btn btn-primary" onclick="updStatus({{ aft_status_id }}, {{ order.order_id }})">
                                         完了
                                     </button>
+                                    {% endif %}
                                     {% if status_id != WAITING and status_id != CANCELLED %}
                                     <button type="button" class="btn btn-secondary" onclick="updStatus({{ bef_status_id }}, {{ order.order_id }})">
                                         戻す
@@ -74,6 +82,7 @@
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
