@@ -56,7 +56,8 @@ function updStatus(status_id, order_id) {
         url: '{{ url_for('view.kitchen_upd') }}',
         data: {
             status_id: status_id,
-            order_id: order_id
+            order_id: order_id,
+            csrf_token: '{{ csrf_token() }}'
         }
     }).done( (res) => {
         console.log(res);

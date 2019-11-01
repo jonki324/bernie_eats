@@ -34,6 +34,7 @@ def logout():
 
 @view.route('/', methods=['GET', 'POST'])
 @view.route('/order', methods=['GET', 'POST'])
+@login_required
 def order():
     session.pop('order_id', default=None)
     session.pop('loc_name', default=None)
@@ -84,6 +85,7 @@ def order():
 
 
 @view.route('/order_check', methods=['GET', 'POST'])
+@login_required
 def order_check():
     order_form = session.get('order_form', default=None)
     if order_form is None:
@@ -130,7 +132,8 @@ def order_check():
     return render_template('order_check.html', forms=forms, loc=loc, total=total)
 
 
-@view.route('/order_complete', methods=['GET', 'POST'])
+@view.route('/order_complete')
+@login_required
 def order_complete():
     order_id = session.get('order_id', default=None)
     loc_name = session.get('loc_name', default=None)
@@ -142,6 +145,7 @@ def order_complete():
 
 
 @view.route('/order_status', methods=['GET', 'POST'])
+@login_required
 def order_status():
     if request.method == 'POST':
         res = {
@@ -162,7 +166,8 @@ def order_status():
     return render_template('order_status.html')
 
 
-@view.route('/kitchen', methods=['GET', 'POST'])
+@view.route('/kitchen')
+@login_required
 def kitchen():
     items = db.session.query(Item).all()
     item_names = {}
@@ -176,6 +181,7 @@ def kitchen():
 
 
 @view.route('/kitchen/upd', methods=['GET', 'POST'])
+@login_required
 def kitchen_upd():
     if request.method == 'POST':
         order_id = request.form['order_id']

@@ -69,7 +69,8 @@ $(function() {
         $.post({
             url: '{{ url_for('view.order_status') }}',
             data: {
-                order_id: order_id
+                order_id: order_id,
+                csrf_token: '{{ csrf_token() }}'
             }
         }).done( (res) => {
             console.log(res);
