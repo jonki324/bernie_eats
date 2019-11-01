@@ -160,9 +160,9 @@ def init_db(app):
     db.init_app(app)
 
 
-def create_master_all():
+def create_master_all(user_id='user', password='a'):
     user_vals = [
-        {'login_id': 'user', 'password': 'a'}
+        {'login_id': user_id, 'password': password}
     ]
     users = []
     for user in user_vals:
@@ -179,7 +179,7 @@ def create_master_all():
             'cooking_time_m': 10,
          },
         {
-            'name': 'deep-モダン',
+            'name': 'Deep-モダン',
             'price': 400,
             'comment': 'deep-モダンの説明',
             'img_file_name': 'modern.jpg',
