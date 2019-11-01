@@ -21,3 +21,5 @@ class Const(object):
     TAB_CANCELLED = 3
 
     DISPLAY_COUNT = 20
+
+    WORK_PER_COUNT = 4

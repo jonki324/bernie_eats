@@ -37,4 +37,8 @@ def create_app():
 
     app.jinja_env.globals.update(Const.__dict__)
 
+    @app.template_filter('format_date')
+    def format_date_filter(value, format_='%H:%M'):
+        return value.strftime(format_)
+
     return app

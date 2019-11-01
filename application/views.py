@@ -1,3 +1,4 @@
+import math
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify, flash
 from flask_login import login_user, logout_user, login_required
 from application.models import db, Item, MasterLoc, MasterStatus, Order, OrderStatus, OrderStatusHistory, User
@@ -121,8 +122,12 @@ def order_check():
         db.session.add(order)
         db.session.commit()
 
+        # wait_time_m = get_wait_time_m(order.id)
+
         session['order_id'] = order.id
         session['loc_name'] = loc.name
+        # session['wait_time_m'] = wait_time_m
+
         session.pop('order_form')
 
         return redirect(url_for('view.order_complete'))
@@ -135,11 +140,12 @@ def order_check():
 def order_complete():
     order_id = session.get('order_id', default=None)
     loc_name = session.get('loc_name', default=None)
+    wait_time_m = session.get('wait_time_m', default=0)
 
     if order_id is None:
         return redirect(url_for('view.order'))
 
-    return render_template('order_complete.html', order_id=order_id, loc_name=loc_name)
+    return render_template('order_complete.html', order_id=order_id, loc_name=loc_name, wait_time_m=wait_time_m)
 
 
 @view.route('/order_status', methods=['GET', 'POST'])
@@ -158,6 +164,32 @@ def order_status():
                     'order_id': order_id,
                     'order_stats': order.status.status.name,
                     'is_cancelable': True if order.status.status_id == Const.WAITING else False
+                }
+        return jsonify(res)
+
+    return render_template('order_status.html')
+
+
+@view.route('/order_status_cancel', methods=['GET', 'POST'])
+@login_required
+def order_status_cancel():
+    if request.method == 'POST':
+        res = {
+            'is_err': True
+        }
+        order_id = request.form['order_id']
+        if order_id:
+            order = db.session.query(Order).filter(Order.id == int(order_id)).first()
+            if order:
+                order.status.status_id = Const.CANCELLED
+                db.session.add(order)
+                db.session.commit()
+                res = {
+                    'is_err': False,
+                    'order_id': order_id,
+                    'order_stats': order.status.status.name,
+                    'is_cancelable': True if order.status.status_id == Const.WAITING else False,
+                    'msg': '注文をキャンセルしました'
                 }
         return jsonify(res)
 
@@ -219,12 +251,14 @@ def get_kitchen_list(master_status):
             count_buta = o_s.order.count_buta
             count_modern = o_s.order.count_modern
             loc_name = o_s.order.loc.name
+            create_at = o_s.order.created_at
             order_info = {
                 'order_id': order_id,
-                'wait_time_m': 10,
+                'wait_time_m': 0,
                 'count_buta': count_buta,
                 'count_modern': count_modern,
-                'loc_name': loc_name
+                'loc_name': loc_name,
+                'create_at': create_at
             }
             order_list.append(order_info)
         res[m_s.id] = order_list
@@ -253,3 +287,46 @@ def get_kitchen_list(master_status):
     # }
 
     return res
+
+
+def get_wait_time_m(order_id):
+    items = db.session.query(Item).order_by(Item.id.asc()).all()
+    print(items[0])
+    i_0 = items[0]
+    i_1 = items[1]
+    # cooking_time_buta = items[0]['cooking_time_m']
+    # cooking_time_modern = items[1]['cooking_time_m']
+    cooking_time_buta = i_0.cooking_time_m
+    cooking_time_modern = i_1.cooking_time_m
+
+    order, order_status = db.session.query(Order, OrderStatus).filter(Order.id == order_id).first()
+
+    d_t = order.loc.delivery_time_m
+    c_t = 0
+
+    if order_status == Const.CARRYING:
+        # d_t = order.loc.delivery_time_m
+        pass
+    elif order_status == Const.COOKING:
+        c_t = get_cooking_wait_time_m(cooking_time_buta, order.count_buta,
+                                      cooking_time_modern, order.count_modern)
+    elif order_status == Const.WAITING:
+        master_status = db.session.query(MasterStatus).filter(db.or_(MasterStatus.id == Const.WAITING,
+                                                                     MasterStatus.id == Const.COOKING)).all()
+        status = master_status.order_status
+        c_b = 0
+        c_m = 0
+        for s in status:
+            c_b += s.order.count_buta
+            c_m += s.order.count_modern
+        c_t = get_cooking_wait_time_m(cooking_time_buta, c_b,
+                                      cooking_time_modern, c_m)
+
+    return d_t + c_t
+
+
+def get_cooking_wait_time_m(cooking_time_buta, count_buta, cooking_time_modern, count_modern):
+    c_t = 0
+    c_t += cooking_time_buta * math.ceil(count_buta / Const.WORK_PER_COUNT)
+    c_t += cooking_time_modern * math.ceil(count_modern / Const.WORK_PER_COUNT)
+    return c_t

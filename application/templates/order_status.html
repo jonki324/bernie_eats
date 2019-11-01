@@ -36,10 +36,12 @@
                         注文No.<span id="res_order_id"></span>
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">注文状況: <span id="res_order_status"></span></li>
-                        <li class="list-group-item">待ち時間: </li>
+                        <li class="list-group-item">注文状況: <span id="res_order_status"></span>
+                            <input type="hidden" name="order_id" id="order_id_hid" value="">
+                        </li>
+{#                        <li class="list-group-item">待ち時間: </li>#}
                         <li class="list-group-item" id="res_cancel_btn">
-                            <button type="button" class="btn btn-danger btn-block">注文をキャンセルする</button>
+                            <button type="button" id="cancel_btn" class="btn btn-danger btn-block">注文をキャンセルする</button>
                         </li>
                     </ul>
                 </div>
@@ -83,10 +85,36 @@ $(function() {
             $('#res_order_id').html(res.order_id);
             $('#res_order_status').html(res.order_stats);
             if (res.is_cancelable) {
+                $('#order_id_hid').val(res.order_id);
                 res_cancel_btn.show();
             }
 
             res_area.show();
+        }).fail( (res) => {
+            console.log(res);
+            alert('通信エラー')
+        })
+    });
+
+    $('#cancel_btn').on('click', function() {
+        res_area.hide();
+        res_cancel_btn.hide();
+
+        let order_id = $('#order_id_hid').val();
+        $.post({
+            url: '{{ url_for('view.order_status_cancel') }}',
+            data: {
+                order_id: order_id,
+                csrf_token: '{{ csrf_token() }}'
+            }
+        }).done( (res) => {
+            console.log(res);
+            if (res.is_err) {
+                alert('通信エラー');
+                return false;
+            } else {
+                alert(res.msg);
+            }
         }).fail( (res) => {
             console.log(res);
             alert('通信エラー')

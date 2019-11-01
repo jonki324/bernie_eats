@@ -43,9 +43,9 @@
         <div id="" class="card-body">
             {% set ED = kitchen_list[status_id] | length if status_id == CANCELLED else DISPLAY_COUNT %}
             {% for order in kitchen_list[status_id][0:ED] %}
-            <div class="card mb-1">
-                <div class="card-header">
-                    注文No.{{ order.order_id }} 注文時間: {{ order.wait_time_m }}
+            <div class="card mb-1 border-{{ COLORS[status_id] }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>注文No.{{ order.order_id }}</span><span>注文時間: {{ order.create_at | format_date }}</span>
                 </div>
                 <div class="card-body">
                     <div class="container">
