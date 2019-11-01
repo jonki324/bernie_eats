@@ -12,7 +12,7 @@
                         <a class="nav-link{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}" href="#d_c" data-toggle="tab">配達・完了</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if tab == TAB_CANCELLED %} active{% endif %}" href="#cancel" data-toggle="tab">注文キャンセル</a>
+                        <a class="nav-link{% if tab == TAB_CANCELLED %} active{% endif %}" href="#cancel" data-toggle="tab">キャンセル</a>
                     </li>
                 </ul>
             </div>
@@ -26,10 +26,10 @@
         <div id="w_c" class="tab-pane{% if tab == TAB_WAITING_AND_COOKING %} active{% endif %}">
             <div class="container">
                 <div class="row">
-                    <div class="col">
+                    <div class="col-md-6">
                         {{ render_status(WAITING, WAITING, COOKING, master_status, kitchen_list, item_names) }}
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         {{ render_status(COOKING, WAITING, CARRYING, master_status, kitchen_list, item_names) }}
                     </div>
                 </div>
@@ -38,10 +38,10 @@
         <div id="d_c" class="tab-pane{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}">
             <div class="container">
                 <div class="row">
-                    <div class="col">
+                    <div class="col-md-6">
                         {{ render_status(CARRYING, COOKING, COMPLETED, master_status, kitchen_list, item_names) }}
                     </div>
-                    <div class="col">
+                    <div class="col-md-6">
                         {{ render_status(COMPLETED, CARRYING, COMPLETED, master_status, kitchen_list, item_names) }}
                     </div>
                 </div>

@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row mt-5">
             <div class="col text-center">
-                <h1>注文状況確認</h1>
+                <h2>注文状況確認</h2>
             </div>
         </div>
     </div>
@@ -12,20 +12,12 @@
 
 {% block content %}
     <div class="container">
-        <div class="row mt-5">
-            <div class="col-md-10 offset-1">
-                <form>
-                    <div class="form-row">
-                        <div class="offset-3 col-1">
-                            <input type="text" readonly class="form-control-plaintext" value="注文No: ">
-                        </div>
-                        <div class="col-2">
-                            <input type="number" min="1" name="order_id" id="order_id" class="form-control" placeholder="注文No">
-                        </div>
-                        <div class="col-3">
-                            <button type="button" class="btn btn-primary" id="search_btn">検索</button>
-                        </div>
-                    </div>
+        <div class="row mt-5  justify-content-center">
+            <div class="col-md-6">
+                <form class="form-inline">
+                    <label for="order_id">注文No</label>
+                    <input type="number" min="1" name="order_id" id="order_id" class="form-control mx-sm-3" placeholder="No.?">
+                    <button type="button" class="btn btn-primary my-3" id="search_btn"><i class="fas fa-search"></i> 検索</button>
                 </form>
             </div>
         </div>
@@ -33,10 +25,10 @@
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
-                        注文No.<span id="res_order_id"></span>
+                        注文 No.<span id="res_order_id"></span>
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">注文状況: <span id="res_order_status"></span>
+                        <li class="list-group-item">注文状況 : <span id="res_order_status"></span>
                             <input type="hidden" name="order_id" id="order_id_hid" value="">
                         </li>
 {#                        <li class="list-group-item">待ち時間: </li>#}
@@ -58,6 +50,10 @@
 {% block script %}
 <script>
 $(function() {
+    toggleDis();
+    $('#order_id').on('keyup', toggleDis);
+    $('#order_id').on('change', toggleDis);
+
     let res_area = $('#res_area');
     let res_cancel_btn = $('#res_cancel_btn');
 
@@ -122,5 +118,14 @@ $(function() {
     });
 
 });
+function toggleDis() {
+    let search_btn = $('#search_btn');
+    let order_id = $(`#order_id`).val();
+    if (order_id > 0) {
+        search_btn.prop("disabled", false);
+    } else {
+        search_btn.prop("disabled", true);
+    }
+}
 </script>
 {% endblock %}

@@ -174,14 +174,14 @@ def create_master_all(user_id='user', password='a'):
         {
             'name': '古き良き豚玉',
             'price': 300,
-            'comment': '古き良き豚玉の説明',
+            'comment': 'お好み焼きの通は、「豚玉に始まって豚玉に帰る」と、言われる定番の味！どうぞお楽しみください！',
             'img_file_name': 'buta.jpg',
             'cooking_time_m': 10,
          },
         {
-            'name': 'Deep-モダン',
+            'name': 'Deep_モダン',
             'price': 400,
-            'comment': 'deep-モダンの説明',
+            'comment': '豚玉では満足できないそこのあなた！ボリューム満点なこちらはいかが？',
             'img_file_name': 'modern.jpg',
             'cooking_time_m': 10,
         },
