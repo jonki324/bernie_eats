@@ -205,10 +205,11 @@ def kitchen():
     for i in items:
         item_names[i.id] = i.name
     master_status = db.session.query(MasterStatus).all()
-    kitchen_list = get_kitchen_list(master_status)
+    kitchen_list, total_order_count_list = get_kitchen_list(master_status)
     return render_template('kitchen.html', tab=int(tab), item_names=item_names,
                            master_status=master_status,
-                           kitchen_list=kitchen_list)
+                           kitchen_list=kitchen_list,
+                           total_order_count_list=total_order_count_list)
 
 
 @view.route('/kitchen/upd', methods=['GET', 'POST'])
@@ -242,14 +243,69 @@ def kitchen_upd():
     return redirect(url_for('view.kitchen'))
 
 
+@view.route('/summary', methods=['GET', 'POST'])
+@login_required
+def summary():
+    order = db.session.query(Order).all()
+    total_order_count = len(order)
+    cnt_buta = 0
+    cnt_modern = 0
+    for o in order:
+        if o.status.status_id != Const.COMPLETED:
+            continue
+        cnt_buta += o.count_buta
+        cnt_modern += o.count_modern
+
+    cnt_list = [cnt_buta, cnt_modern]
+
+    items = db.session.query(Item).all()
+
+    forms = []
+    total = 0
+    for idx, item in enumerate(items):
+        name = item.name
+        price = item.price
+        odr_cnt = cnt_list[idx]
+        subtotal = odr_cnt * item.price
+        total += subtotal
+        form = {
+            'name': name,
+            'price': price,
+            'odr_cnt': odr_cnt,
+            'subtotal': subtotal,
+        }
+        forms.append(form)
+
+    return render_template('summary.html', forms=forms, total=total, total_order_count=total_order_count)
+
+
+@view.route('/history', methods=['GET', 'POST'])
+@login_required
+def history():
+    history = db.session.query(OrderStatusHistory).order_by(OrderStatusHistory.created_at.desc()).all()
+    forms = []
+    for h in history:
+        form = {
+            'status_id': h.status_id,
+            'order_id': h.order_id,
+            'status_name': h.status.name,
+            'created_at': h.created_at
+        }
+        forms.append(form)
+    return render_template('history.html', forms=forms)
+
+
 def get_kitchen_list(master_status):
     res = {}
+    total_order_count_list = {}
     for m_s in master_status:
         order_list = []
+        total_count = 0
         for o_s in m_s.order_status:
             order_id = o_s.order.id
             count_buta = o_s.order.count_buta
             count_modern = o_s.order.count_modern
+            loc_id = o_s.order.loc.id
             loc_name = o_s.order.loc.name
             create_at = o_s.order.created_at
             order_info = {
@@ -257,11 +313,15 @@ def get_kitchen_list(master_status):
                 'wait_time_m': 0,
                 'count_buta': count_buta,
                 'count_modern': count_modern,
+                'loc_id': loc_id,
                 'loc_name': loc_name,
                 'create_at': create_at
             }
             order_list.append(order_info)
+            total_count += count_buta
+            total_count += count_modern
         res[m_s.id] = order_list
+        total_order_count_list[m_s.id] = total_count
 
     # res = {
     #     {
@@ -286,7 +346,7 @@ def get_kitchen_list(master_status):
     #     },
     # }
 
-    return res
+    return res, total_order_count_list
 
 
 def get_wait_time_m(order_id):

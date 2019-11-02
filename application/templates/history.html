@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+<h2 class="text-center mt-5">注文ステータス履歴</h2>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <table class="table table-striped table-hover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">No</th>
+                        <th scope="col">注文 No</th>
+                        <th scope="col">注文ステータス</th>
+                        <th scope="col">処理時間</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in forms %}
+                    <tr class="table-{{ COLORS[form.status_id] }}">
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ form.order_id }}</td>
+                        <td>{{ form.status_name }}</td>
+                        <td>{{ form.created_at | format_date('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}{% endblock %}

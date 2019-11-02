@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+<h2 class="text-center mt-5">集計</h2>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <table class="table table-striped">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">No</th>
+                        <th scope="col">商品名</th>
+                        <th scope="col">注文枚数</th>
+                        <th scope="col">小計</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in forms %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ form.name }}<br><span class="text-muted">(<i class="fas fa-yen-sign"></i>{{ form.price }}円)</span></td>
+                        <td>{{ form.odr_cnt }} 個</td>
+                        <td><i class="fas fa-yen-sign"></i>{{ form.subtotal }}円</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="table-info">
+                        <th scope="row">合計</th>
+                        <td colspan="2"></td>
+                        <td><i class="fas fa-yen-sign"></i>{{ total }}円</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-10 offset-md-1">
+                <p class="h5 p-2">総注文数 : {{ total_order_count }}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}{% endblock %}

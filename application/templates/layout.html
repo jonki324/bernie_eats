@@ -28,6 +28,12 @@
                 <li class="nav-item{% if request.path == url_for('view.kitchen') %} active{% endif %}">
                     <a class="nav-link" href="{{ url_for('view.kitchen') }}"><i class="fas fa-pizza-slice"></i> キッチン</a>
                 </li>
+                <li class="nav-item{% if request.path == url_for('view.summary') %} active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('view.summary') }}"><i class="fas fa-calculator"></i> 集計</a>
+                </li>
+                <li class="nav-item{% if request.path == url_for('view.history') %} active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('view.history') }}"><i class="fas fa-history"></i> ログ</a>
+                </li>
             </ul>
             {% if current_user.is_authenticated %}
             <form class="form-inline my-2 my-lg-0" action="{{ url_for('view.logout') }}">

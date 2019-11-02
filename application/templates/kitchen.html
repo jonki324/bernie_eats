@@ -6,13 +6,13 @@
             <div class="col">
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <a class="nav-link{% if tab == TAB_WAITING_AND_COOKING %} active{% endif %}" href="#w_c" data-toggle="tab">待ち・調理中</a>
+                        <a class="nav-link{% if tab == TAB_WAITING_AND_COOKING %} active{% endif %}" href="#status_tab" data-toggle="tab" onclick="redirectKitchen({{ TAB_WAITING_AND_COOKING }})">待ち・調理中</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}" href="#d_c" data-toggle="tab">配達・完了</a>
+                        <a class="nav-link{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}" href="#status_tab" data-toggle="tab" onclick="redirectKitchen({{ TAB_CARRYING_AND_COMPLETED }})">配達・完了</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if tab == TAB_CANCELLED %} active{% endif %}" href="#cancel" data-toggle="tab">キャンセル</a>
+                        <a class="nav-link{% if tab == TAB_CANCELLED %} active{% endif %}" href="#status_tab" data-toggle="tab" onclick="redirectKitchen({{ TAB_CANCELLED }})">キャンセル</a>
                     </li>
                 </ul>
             </div>
@@ -22,40 +22,48 @@
 
 {% block content %}
     {% from "_formhelpers.html" import render_status %}
-    <div class="tab-content">
-        <div id="w_c" class="tab-pane{% if tab == TAB_WAITING_AND_COOKING %} active{% endif %}">
+{#    <div class="tab-content">#}
+{#        <div id="status_tab" class="tab-pane">#}
+    <div>
+        <div>
             <div class="container">
                 <div class="row">
+                    {% if tab == TAB_WAITING_AND_COOKING %}
                     <div class="col-md-6">
-                        {{ render_status(WAITING, WAITING, COOKING, master_status, kitchen_list, item_names) }}
+                        {{ render_status(WAITING, WAITING, COOKING, master_status, kitchen_list, item_names, total_order_count_list) }}
                     </div>
                     <div class="col-md-6">
-                        {{ render_status(COOKING, WAITING, CARRYING, master_status, kitchen_list, item_names) }}
+                        {{ render_status(COOKING, WAITING, CARRYING, master_status, kitchen_list, item_names, total_order_count_list) }}
                     </div>
+                    {% elif tab == TAB_CARRYING_AND_COMPLETED %}
+                    <div class="col-md-6">
+                        {{ render_status(CARRYING, COOKING, COMPLETED, master_status, kitchen_list, item_names, total_order_count_list) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ render_status(COMPLETED, CARRYING, COMPLETED, master_status, kitchen_list, item_names, total_order_count_list) }}
+                    </div>
+                    {% elif tab == TAB_CANCELLED %}
+                    <div class="col-md-6">
+                        {{ render_status(CANCELLED, COMPLETED, COMPLETED, master_status, kitchen_list, item_names, total_order_count_list) }}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div id="d_c" class="tab-pane{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ render_status(CARRYING, COOKING, COMPLETED, master_status, kitchen_list, item_names) }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ render_status(COMPLETED, CARRYING, COMPLETED, master_status, kitchen_list, item_names) }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="cancel" class="tab-pane{% if tab == TAB_CANCELLED %} active{% endif %}">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ render_status(CANCELLED, COMPLETED, COMPLETED, master_status, kitchen_list, item_names) }}
-                    </div>
-                </div>
-            </div>
-        </div>
+{#        <div id="d_c" class="tab-pane{% if tab == TAB_CARRYING_AND_COMPLETED %} active{% endif %}">#}
+{#            <div class="container">#}
+{#                <div class="row">#}
+{#                    #}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        <div id="cancel" class="tab-pane{% if tab == TAB_CANCELLED %} active{% endif %}">#}
+{#            <div class="container">#}
+{#                <div class="row">#}
+{#                    #}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
     </div>
 {% endblock %}
 
@@ -77,11 +85,16 @@ function updStatus(status_id, order_id) {
             alert('通信エラー');
             return false;
         }
-        location.href = '{{ url_for('view.kitchen') }}?tab=' + res.tab;
+        {#location.href = '{{ url_for('view.kitchen') }}?tab=' + res.tab;#}
+        redirectKitchen(res.tab);
     }).fail( (res) => {
         console.log(res);
         alert('通信エラー');
     })
+}
+
+function redirectKitchen(tab) {
+    location.href = '{{ url_for('view.kitchen') }}?tab=' + tab;
 }
 </script>
 {% endblock %}

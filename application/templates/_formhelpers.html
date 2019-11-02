@@ -37,14 +37,20 @@
     </div>
 {% endmacro %}
 
-{% macro render_status(status_id, bef_status_id, aft_status_id, master_status, kitchen_list, item_names) %}
+{% macro render_status(status_id, bef_status_id, aft_status_id, master_status, kitchen_list, item_names, total_order_count_list) %}
     <div class="card mt-4 border-{{ COLORS[status_id] }}">
         <div class="card-header bg-{{ COLORS[status_id] }} text-white d-flex justify-content-between align-items-center">
-            <span>{{ master_status[status_id - 1]['name'] }}</span><span>全{{ kitchen_list[status_id] | length }}件</span>
+            <span>{{ master_status[status_id - 1]['name'] }}</span>
+            <span>全{{ kitchen_list[status_id] | length }}件{% if status_id == WAITING %}&nbsp;(枚数 : {{ total_order_count_list[status_id] }}枚){% endif %}</span>
         </div>
         <div id="" class="card-body">
-            {% set ED = kitchen_list[status_id] | length if status_id == CANCELLED else DISPLAY_COUNT %}
-            {% for order in kitchen_list[status_id][0:ED] %}
+            {% if status_id == CANCELLED or status_id == COMPLETED %}
+                {% set tmp_list = kitchen_list[status_id][::-1] %}
+                {% set order_list = tmp_list[0:DISPLAY_COUNT] %}
+            {% else %}
+                {% set order_list = kitchen_list[status_id][0:DISPLAY_COUNT] %}
+            {% endif %}
+            {% for order in order_list %}
             <div class="card mb-1 border-{{ COLORS[status_id] }}">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>注文 No.{{ order.order_id }}</span><span>注文時間 : {{ order.create_at | format_date }}</span>
@@ -58,7 +64,7 @@
                                     <li>{{ item_names[ITEM_ID_MODERN] }} : {{ order.count_modern }}</li>
                                 </ul>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-5{% if order.loc_id != LOC_ID_181 %} text-danger{% endif %}">
                                 &lt;&lt; 配達場所 &gt;&gt; <br>{{ order.loc_name }}
                             </div>
                         </div>
@@ -67,18 +73,30 @@
                             <div class="col-md-10 offset-md-1">
                                 <div class="btn-group btn-block" role="group">
                                     {% if status_id != COMPLETED %}
-                                    <button type="button" class="btn btn-primary" onclick="updStatus({{ aft_status_id }}, {{ order.order_id }})">
-                                        完了
-                                    </button>
+                                        {% if order.loc_id == LOC_ID_181 %}
+                                            <button type="button" class="btn btn-primary" onclick="updStatus({{ UPDATE_STATUS[status_id]['aft_181'] }}, {{ order.order_id }})">
+                                                完了
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-primary" onclick="updStatus({{ aft_status_id }}, {{ order.order_id }})">
+                                                完了
+                                            </button>
+                                        {% endif %}
                                     {% endif %}
                                     {% if status_id != WAITING and status_id != CANCELLED %}
-                                    <button type="button" class="btn btn-secondary" onclick="updStatus({{ bef_status_id }}, {{ order.order_id }})">
-                                        戻す
-                                    </button>
+                                        {% if order.loc_id == LOC_ID_181 %}
+                                            <button type="button" class="btn btn-secondary" onclick="updStatus({{ UPDATE_STATUS[status_id]['buf_181'] }}, {{ order.order_id }})">
+                                                戻す
+                                            </button>
+                                        {% else %}
+                                             <button type="button" class="btn btn-secondary" onclick="updStatus({{ bef_status_id }}, {{ order.order_id }})">
+                                                戻す
+                                             </button>
+                                        {% endif %}
                                     {% endif %}
                                     {% if status_id == WAITING %}
                                     <button type="button" class="btn btn-danger" onclick="updStatus({{ CANCELLED }}, {{ order.order_id }})">
-                                        注文キャンセル
+                                        キャンセル
                                     </button>
                                     {% endif %}
                                 </div>
