@@ -23,13 +23,13 @@
                         <th scope="row">{{ loop.index }}</th>
                         <td>{{ form.name }}<br><span class="text-muted">(<i class="fas fa-yen-sign"></i>{{ form.price }}円)</span></td>
                         <td>{{ form.odr_cnt }} 個</td>
-                        <td><i class="fas fa-yen-sign"></i>{{ form.subtotal | format_currency}}円</td>
+                        <td><i class="fas fa-yen-sign"></i>{{ form.subtotal }}円</td>
                     </tr>
                     {% endfor %}
                     <tr class="table-info">
                         <th scope="row">合計</th>
                         <td colspan="2"></td>
-                        <td><i class="fas fa-yen-sign"></i>{{ total | format_currency}}円</td>
+                        <td><i class="fas fa-yen-sign"></i>{{ total }}円</td>
                     </tr>
                     </tbody>
                 </table>

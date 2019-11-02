@@ -1,5 +1,4 @@
 import os
-import locale
 from application.models import init_db, User
 from application.views import view
 from application.const import Const
@@ -36,16 +35,10 @@ def create_app():
 
     app.register_blueprint(view)
 
-    locale.setlocale(locale.LC_NUMERIC, 'ja_JP')
-
     app.jinja_env.globals.update(Const.__dict__)
 
     @app.template_filter('format_date')
     def format_date_filter(value, format_='%H:%M'):
         return value.strftime(format_)
-
-    @app.template_filter('format_currency')
-    def format_currency_filter(value):
-        return locale.format_string('%d', value, True)
 
     return app
