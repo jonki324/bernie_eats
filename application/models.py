@@ -209,6 +209,7 @@ def create_master_all(user_id='user', password='a'):
     loc_vals = [
         {'name': '181教室', 'delivery_time_m': 0},
         {'name': '職員室(本館3階)', 'delivery_time_m': 1},
+        {'name': '教務部(本館1階)', 'delivery_time_m': 1},
         {'name': '7B22教室', 'delivery_time_m': 5},
     ]
     locs = []
